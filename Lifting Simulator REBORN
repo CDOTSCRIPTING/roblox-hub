@@ -11,6 +11,9 @@ if CoreGui:FindFirstChild("ApexServicesUI") then
     CoreGui.ApexServicesUI:Destroy()
 end
 
+-- ================= BACK TO LOADER CONFIG =================
+local LoaderURL = "https://raw.githubusercontent.com/CDOTSCRIPTING/roblox-hub/refs/heads/main/APEXHUB" -- Add your loader URL here
+
 local theme = {
     bg = Color3.fromRGB(10, 10, 10),
     surface = Color3.fromRGB(18, 18, 18),
@@ -389,6 +392,39 @@ cashLabel.TextXAlignment = Enum.TextXAlignment.Left
 cashLabel.ZIndex = 13
 cashLabel.Parent = Content
 addCorner(cashLabel, 4)
+
+-- ================= BACK TO LOADER BUTTON =================
+local BackBtn = Instance.new("TextButton")
+BackBtn.Size = UDim2.new(0, 120, 0, 24)
+BackBtn.Position = UDim2.new(0, 0, 1, -24)
+BackBtn.BackgroundColor3 = theme.surfaceLight
+BackBtn.BorderSizePixel = 0
+BackBtn.Text = "Back to Loader"
+BackBtn.TextColor3 = theme.text
+BackBtn.Font = Enum.Font.GothamBold
+BackBtn.TextSize = 11
+BackBtn.AutoButtonColor = false
+BackBtn.ZIndex = 13
+BackBtn.Parent = Content
+addCorner(BackBtn, 4)
+
+BackBtn.MouseEnter:Connect(function()
+    TweenService:Create(BackBtn, TweenInfo.new(0.15), {BackgroundColor3 = theme.accent}):Play()
+end)
+BackBtn.MouseLeave:Connect(function()
+    TweenService:Create(BackBtn, TweenInfo.new(0.15), {BackgroundColor3 = theme.surfaceLight}):Play()
+end)
+
+BackBtn.MouseButton1Click:Connect(function()
+    local loaderURL = "https://raw.githubusercontent.com/CDOTSCRIPTING/roblox-hub/refs/heads/main/APEXHUB?token=GHSAT0AAAAAAEOIV7WGJZCFG2A3FPSFIAVQ2XDNMVQ"
+    if loaderURL ~= "" then
+        pcall(function()
+            loadstring(game:HttpGet(loaderURL))()
+        end)
+    else
+        print("[APEX] Loader URL is empty.")
+    end
+end)
 
 -- ================= REMOTES =================
 local eventsFolder = ReplicatedStorage:WaitForChild("Events")
