@@ -1,9 +1,7 @@
 local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local player = Players.LocalPlayer
 
@@ -16,11 +14,9 @@ local theme = {
     surface = Color3.fromRGB(18, 18, 18),
     surfaceLight = Color3.fromRGB(26, 26, 26),
     accent = Color3.fromRGB(200, 25, 25),
-    accentDim = Color3.fromRGB(140, 15, 15),
     text = Color3.fromRGB(245, 245, 245),
     subtext = Color3.fromRGB(160, 160, 160),
-    border = Color3.fromRGB(50, 15, 15),
-    inputBg = Color3.fromRGB(22, 22, 22)
+    border = Color3.fromRGB(50, 15, 15)
 }
 
 local function addCorner(inst, r)
@@ -44,10 +40,24 @@ ScreenGui.IgnoreGuiInset = true
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
 ScreenGui.Parent = CoreGui
 
+-- ================= MAIN UI (HIDDEN UNTIL LOADED) =================
+local Main = Instance.new("Frame")
+Main.Size = UDim2.new(0, 520, 0, 360)
+Main.Position = UDim2.new(0.5, -260, 0.5, -180)
+Main.BackgroundColor3 = theme.bg
+Main.BorderSizePixel = 0
+Main.Active = true
+Main.ClipsDescendants = true
+Main.ZIndex = 10
+Main.Visible = false
+Main.Parent = ScreenGui
+addCorner(Main, 8)
+addStroke(Main, theme.border, 1)
+
 -- ================= LOADING SCREEN =================
 local LoadingScreen = Instance.new("Frame")
-LoadingScreen.Size = UDim2.new(0, 380, 0, 360)
-LoadingScreen.Position = UDim2.new(0.5, -190, 0.5, -180)
+LoadingScreen.Size = UDim2.new(0, 520, 0, 360)
+LoadingScreen.Position = UDim2.new(0.5, -260, 0.5, -180)
 LoadingScreen.BackgroundColor3 = theme.bg
 LoadingScreen.BorderSizePixel = 0
 LoadingScreen.ZIndex = 500
@@ -57,38 +67,59 @@ addStroke(LoadingScreen, theme.border, 1)
 
 local LoadTitle = Instance.new("TextLabel")
 LoadTitle.Size = UDim2.new(1, 0, 0, 50)
-LoadTitle.Position = UDim2.new(0, 0, 0, 30)
+LoadTitle.Position = UDim2.new(0, 0, 0, 40)
 LoadTitle.BackgroundTransparency = 1
 LoadTitle.Text = "APEX"
 LoadTitle.TextColor3 = theme.accent
 LoadTitle.Font = Enum.Font.GothamBlack
-LoadTitle.TextSize = 40
+LoadTitle.TextSize = 36
 LoadTitle.TextXAlignment = Enum.TextXAlignment.Center
 LoadTitle.ZIndex = 501
 LoadTitle.Parent = LoadingScreen
 
-local LoadConsole = Instance.new("TextLabel")
-LoadConsole.Size = UDim2.new(1, -40, 1, -120)
-LoadConsole.Position = UDim2.new(0, 20, 0, 80)
-LoadConsole.BackgroundTransparency = 1
-LoadConsole.Text = ""
-LoadConsole.TextColor3 = theme.subtext
-LoadConsole.Font = Enum.Font.Code
-LoadConsole.TextSize = 12
-LoadConsole.TextXAlignment = Enum.TextXAlignment.Left
-LoadConsole.TextYAlignment = Enum.TextYAlignment.Top
-LoadConsole.TextWrapped = true
+local LoadSub = Instance.new("TextLabel")
+LoadSub.Size = UDim2.new(1, 0, 0, 20)
+LoadSub.Position = UDim2.new(0, 0, 0, 90)
+LoadSub.BackgroundTransparency = 1
+LoadSub.Text = "By CJ"
+LoadSub.TextColor3 = theme.subtext
+LoadSub.Font = Enum.Font.Code
+LoadSub.TextSize = 12
+LoadSub.TextXAlignment = Enum.TextXAlignment.Center
+LoadSub.ZIndex = 501
+LoadSub.Parent = LoadingScreen
+
+local LoadConsole = Instance.new("Frame")
+LoadConsole.Size = UDim2.new(1, -60, 0, 150)
+LoadConsole.Position = UDim2.new(0, 30, 0, 130)
+LoadConsole.BackgroundColor3 = theme.surface
+LoadConsole.BorderSizePixel = 0
 LoadConsole.ZIndex = 501
 LoadConsole.Parent = LoadingScreen
+addCorner(LoadConsole, 6)
+
+local ConsoleText = Instance.new("TextLabel")
+ConsoleText.Size = UDim2.new(1, -20, 1, -20)
+ConsoleText.Position = UDim2.new(0, 10, 0, 10)
+ConsoleText.BackgroundTransparency = 1
+ConsoleText.Text = ""
+ConsoleText.TextColor3 = theme.subtext
+ConsoleText.Font = Enum.Font.Code
+ConsoleText.TextSize = 12
+ConsoleText.TextXAlignment = Enum.TextXAlignment.Left
+ConsoleText.TextYAlignment = Enum.TextYAlignment.Top
+ConsoleText.TextWrapped = true
+ConsoleText.ZIndex = 502
+ConsoleText.Parent = LoadConsole
 
 local LoadBarBg = Instance.new("Frame")
-LoadBarBg.Size = UDim2.new(0, 300, 0, 6)
-LoadBarBg.Position = UDim2.new(0.5, -150, 1, -40)
+LoadBarBg.Size = UDim2.new(1, -60, 0, 4)
+LoadBarBg.Position = UDim2.new(0, 30, 1, -30)
 LoadBarBg.BackgroundColor3 = theme.surfaceLight
 LoadBarBg.BorderSizePixel = 0
 LoadBarBg.ZIndex = 501
 LoadBarBg.Parent = LoadingScreen
-addCorner(LoadBarBg, 3)
+addCorner(LoadBarBg, 2)
 
 local LoadBarFill = Instance.new("Frame")
 LoadBarFill.Size = UDim2.new(0, 0, 1, 0)
@@ -96,13 +127,13 @@ LoadBarFill.BackgroundColor3 = theme.accent
 LoadBarFill.BorderSizePixel = 0
 LoadBarFill.ZIndex = 502
 LoadBarFill.Parent = LoadBarBg
-addCorner(LoadBarFill, 3)
+addCorner(LoadBarFill, 2)
 
--- Typing animation logic
-local loadMessages = {
+-- Loading Animation Logic
+local messages = {
     "[SYSTEM] Initializing Apex Services...",
-    "[SYSTEM] Searching for game scripts...",
-    "[SYSTEM] Fetching remote events...",
+    "[SYSTEM] Fetching scripts from GitHub...",
+    "[SYSTEM] Searching for remote events...",
     "[SYSTEM] Bypassing anti-cheat...",
     "[SYSTEM] Loading Remote Spy module...",
     "[SYSTEM] Preparing Auto-Lift & Sell...",
@@ -111,33 +142,21 @@ local loadMessages = {
     "[SYSTEM] Executed by CJ."
 }
 
-local function typeMessage(msg, delay)
-    task.wait(delay)
-    local fullText = LoadConsole.Text
-    LoadConsole.Text = fullText .. msg .. "\n"
+local function typeMessage(msg)
+    local currentText = ConsoleText.Text
+    ConsoleText.Text = currentText .. msg .. "\n"
 end
 
 task.spawn(function()
-    for i, msg in ipairs(loadMessages) do
-        typeMessage(msg, 0.6)
-        TweenService:Create(LoadBarFill, TweenInfo.new(0.6, Enum.EasingStyle.Linear), {Size = UDim2.new(i / #loadMessages, 0, 1, 0)}):Play()
+    for i, msg in ipairs(messages) do
+        typeMessage(msg)
+        TweenService:Create(LoadBarFill, TweenInfo.new(0.5, Enum.EasingStyle.Linear), {Size = UDim2.new(i / #messages, 0, 1, 0)}):Play()
+        task.wait(0.7)
     end
-    task.wait(1.5)
+    task.wait(1)
     LoadingScreen:Destroy()
+    Main.Visible = true
 end)
-
--- ================= MAIN UI =================
-local Main = Instance.new("Frame")
-Main.Size = UDim2.new(0, 520, 0, 360)
-Main.Position = UDim2.new(0.5, -260, 0.5, -180)
-Main.BackgroundColor3 = theme.bg
-Main.BorderSizePixel = 0
-Main.Active = true
-Main.ClipsDescendants = true
-Main.ZIndex = 10
-Main.Parent = ScreenGui
-addCorner(Main, 8)
-addStroke(Main, theme.border, 1)
 
 -- ================= MINIMIZED BUTTON =================
 local MinimizedContainer = Instance.new("Frame")
