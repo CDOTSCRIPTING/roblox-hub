@@ -1,9 +1,7 @@
 local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local player = Players.LocalPlayer
 
@@ -16,11 +14,9 @@ local theme = {
     surface = Color3.fromRGB(18, 18, 18),
     surfaceLight = Color3.fromRGB(26, 26, 26),
     accent = Color3.fromRGB(200, 25, 25),
-    accentDim = Color3.fromRGB(140, 15, 15),
     text = Color3.fromRGB(245, 245, 245),
     subtext = Color3.fromRGB(160, 160, 160),
-    border = Color3.fromRGB(50, 15, 15),
-    inputBg = Color3.fromRGB(22, 22, 22)
+    border = Color3.fromRGB(50, 15, 15)
 }
 
 local function addCorner(inst, r)
@@ -44,10 +40,24 @@ ScreenGui.IgnoreGuiInset = true
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
 ScreenGui.Parent = CoreGui
 
--- ================= LOADING SCREEN (COMPACT) =================
+-- ================= MAIN UI (HIDDEN UNTIL LOADED) =================
+local Main = Instance.new("Frame")
+Main.Size = UDim2.new(0, 520, 0, 360)
+Main.Position = UDim2.new(0.5, -260, 0.5, -180)
+Main.BackgroundColor3 = theme.bg
+Main.BorderSizePixel = 0
+Main.Active = true
+Main.ClipsDescendants = true
+Main.ZIndex = 10
+Main.Visible = false
+Main.Parent = ScreenGui
+addCorner(Main, 8)
+addStroke(Main, theme.border, 1)
+
+-- ================= LOADING SCREEN =================
 local LoadingScreen = Instance.new("Frame")
-LoadingScreen.Size = UDim2.new(0, 380, 0, 360)
-LoadingScreen.Position = UDim2.new(0.5, -190, 0.5, -180)
+LoadingScreen.Size = UDim2.new(0, 520, 0, 360)
+LoadingScreen.Position = UDim2.new(0.5, -260, 0.5, -180)
 LoadingScreen.BackgroundColor3 = theme.bg
 LoadingScreen.BorderSizePixel = 0
 LoadingScreen.ZIndex = 500
@@ -57,36 +67,59 @@ addStroke(LoadingScreen, theme.border, 1)
 
 local LoadTitle = Instance.new("TextLabel")
 LoadTitle.Size = UDim2.new(1, 0, 0, 50)
-LoadTitle.Position = UDim2.new(0, 0, 0.5, -50)
+LoadTitle.Position = UDim2.new(0, 0, 0, 40)
 LoadTitle.BackgroundTransparency = 1
 LoadTitle.Text = "APEX"
 LoadTitle.TextColor3 = theme.accent
 LoadTitle.Font = Enum.Font.GothamBlack
-LoadTitle.TextSize = 40
+LoadTitle.TextSize = 36
 LoadTitle.TextXAlignment = Enum.TextXAlignment.Center
 LoadTitle.ZIndex = 501
 LoadTitle.Parent = LoadingScreen
 
 local LoadSub = Instance.new("TextLabel")
-LoadSub.Size = UDim2.new(1, 0, 0, 30)
-LoadSub.Position = UDim2.new(0, 0, 0.5, 0)
+LoadSub.Size = UDim2.new(1, 0, 0, 20)
+LoadSub.Position = UDim2.new(0, 0, 0, 90)
 LoadSub.BackgroundTransparency = 1
-LoadSub.Text = "FUCKING UP LIFTING SIMULATOR..."
-LoadSub.TextColor3 = theme.text
+LoadSub.Text = "By CJ"
+LoadSub.TextColor3 = theme.subtext
 LoadSub.Font = Enum.Font.Code
-LoadSub.TextSize = 14
+LoadSub.TextSize = 12
 LoadSub.TextXAlignment = Enum.TextXAlignment.Center
 LoadSub.ZIndex = 501
 LoadSub.Parent = LoadingScreen
 
+local LoadConsole = Instance.new("Frame")
+LoadConsole.Size = UDim2.new(1, -60, 0, 150)
+LoadConsole.Position = UDim2.new(0, 30, 0, 130)
+LoadConsole.BackgroundColor3 = theme.surface
+LoadConsole.BorderSizePixel = 0
+LoadConsole.ZIndex = 501
+LoadConsole.Parent = LoadingScreen
+addCorner(LoadConsole, 6)
+
+local ConsoleText = Instance.new("TextLabel")
+ConsoleText.Size = UDim2.new(1, -20, 1, -20)
+ConsoleText.Position = UDim2.new(0, 10, 0, 10)
+ConsoleText.BackgroundTransparency = 1
+ConsoleText.Text = ""
+ConsoleText.TextColor3 = theme.subtext
+ConsoleText.Font = Enum.Font.Code
+ConsoleText.TextSize = 12
+ConsoleText.TextXAlignment = Enum.TextXAlignment.Left
+ConsoleText.TextYAlignment = Enum.TextYAlignment.Top
+ConsoleText.TextWrapped = true
+ConsoleText.ZIndex = 502
+ConsoleText.Parent = LoadConsole
+
 local LoadBarBg = Instance.new("Frame")
-LoadBarBg.Size = UDim2.new(0, 300, 0, 6)
-LoadBarBg.Position = UDim2.new(0.5, -150, 0.5, 30)
+LoadBarBg.Size = UDim2.new(1, -60, 0, 4)
+LoadBarBg.Position = UDim2.new(0, 30, 1, -30)
 LoadBarBg.BackgroundColor3 = theme.surfaceLight
 LoadBarBg.BorderSizePixel = 0
 LoadBarBg.ZIndex = 501
 LoadBarBg.Parent = LoadingScreen
-addCorner(LoadBarBg, 3)
+addCorner(LoadBarBg, 2)
 
 local LoadBarFill = Instance.new("Frame")
 LoadBarFill.Size = UDim2.new(0, 0, 1, 0)
@@ -94,25 +127,35 @@ LoadBarFill.BackgroundColor3 = theme.accent
 LoadBarFill.BorderSizePixel = 0
 LoadBarFill.ZIndex = 502
 LoadBarFill.Parent = LoadBarBg
-addCorner(LoadBarFill, 3)
+addCorner(LoadBarFill, 2)
 
-TweenService:Create(LoadBarFill, TweenInfo.new(3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(1, 0, 1, 0)}):Play()
-task.wait(3)
+local messages = {
+    "[SYSTEM] Initializing Apex Services...",
+    "[SYSTEM] Fetching scripts from GitHub...",
+    "[SYSTEM] Searching for remote events...",
+    "[SYSTEM] Bypassing anti-cheat...",
+    "[SYSTEM] Loading Remote Spy module...",
+    "[SYSTEM] Preparing Auto-Lift & Sell...",
+    "[SYSTEM] Writing payload...",
+    "[SUCCESS] UI Loaded.",
+    "[SYSTEM] Executed by CJ."
+}
 
-LoadingScreen:Destroy()
+local function typeMessage(msg)
+    local currentText = ConsoleText.Text
+    ConsoleText.Text = currentText .. msg .. "\n"
+end
 
--- ================= MAIN UI =================
-local Main = Instance.new("Frame")
-Main.Size = UDim2.new(0, 380, 0, 360)
-Main.Position = UDim2.new(0.5, -190, 0.5, -180)
-Main.BackgroundColor3 = theme.bg
-Main.BorderSizePixel = 0
-Main.Active = true
-Main.ClipsDescendants = true
-Main.ZIndex = 10
-Main.Parent = ScreenGui
-addCorner(Main, 8)
-addStroke(Main, theme.border, 1)
+task.spawn(function()
+    for i, msg in ipairs(messages) do
+        typeMessage(msg)
+        TweenService:Create(LoadBarFill, TweenInfo.new(0.5, Enum.EasingStyle.Linear), {Size = UDim2.new(i / #messages, 0, 1, 0)}):Play()
+        task.wait(0.7)
+    end
+    task.wait(1)
+    LoadingScreen:Destroy()
+    Main.Visible = true
+end)
 
 -- ================= MINIMIZED BUTTON =================
 local MinimizedContainer = Instance.new("Frame")
@@ -259,13 +302,13 @@ TopBarLine.ZIndex = 13
 TopBarLine.Parent = TopBar
 
 local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(0, 250, 1, 0)
+Title.Size = UDim2.new(0, 200, 1, 0)
 Title.Position = UDim2.new(0, 12, 0, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "APEX | LIFTING SIMULATOR REBORN"
+Title.Text = "APEX SERVICES | V1"
 Title.TextColor3 = theme.accent
 Title.Font = Enum.Font.GothamBold
-Title.TextSize = 12
+Title.TextSize = 13
 Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.ZIndex = 14
 Title.Parent = TopBar
@@ -305,327 +348,507 @@ CloseBtn.Parent = TopBar
 addCorner(CloseBtn, 4)
 CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
 
-local Content = Instance.new("Frame")
-Content.Size = UDim2.new(1, -24, 1, -48)
-Content.Position = UDim2.new(0, 12, 0, 40)
-Content.BackgroundTransparency = 1
-Content.ZIndex = 12
-Content.Parent = Main
+local TabContainer = Instance.new("Frame")
+TabContainer.Size = UDim2.new(0, 120, 1, -32)
+TabContainer.Position = UDim2.new(0, 0, 0, 32)
+TabContainer.BackgroundColor3 = theme.surface
+TabContainer.BorderSizePixel = 0
+TabContainer.ZIndex = 11
+TabContainer.Parent = Main
 
-local function CreateToggle(name, yPos)
-    local container = Instance.new("Frame")
-    container.Size = UDim2.new(1, 0, 0, 34)
-    container.Position = UDim2.new(0, 0, 0, yPos)
-    container.BackgroundColor3 = theme.surface
-    container.BorderSizePixel = 0
-    container.ZIndex = 12
-    container.Parent = Content
-    addCorner(container, 4)
-    
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, -60, 1, 0)
-    label.Position = UDim2.new(0, 12, 0, 0)
-    label.BackgroundTransparency = 1
-    label.Text = name
-    label.TextColor3 = theme.text
-    label.Font = Enum.Font.GothamMedium
-    label.TextSize = 12
-    label.TextXAlignment = Enum.TextXAlignment.Left
-    label.ZIndex = 13
-    label.Parent = container
-    
+local SidebarLine = Instance.new("Frame")
+SidebarLine.Size = UDim2.new(0, 1, 1, 0)
+SidebarLine.Position = UDim2.new(1, 0, 0, 0)
+SidebarLine.BackgroundColor3 = theme.border
+SidebarLine.BorderSizePixel = 0
+SidebarLine.ZIndex = 12
+SidebarLine.Parent = TabContainer
+
+local ContentContainer = Instance.new("Frame")
+ContentContainer.Size = UDim2.new(1, -120, 1, -32)
+ContentContainer.Position = UDim2.new(0, 120, 0, 32)
+ContentContainer.BackgroundColor3 = theme.bg
+ContentContainer.BorderSizePixel = 0
+ContentContainer.ZIndex = 11
+ContentContainer.Parent = Main
+
+local Tabs = {}
+local function CreateTab(name, index)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 44, 0, 22)
-    btn.Position = UDim2.new(1, -56, 0, 6)
-    btn.BackgroundColor3 = theme.surfaceLight
+    btn.Size = UDim2.new(1, -12, 0, 30)
+    btn.Position = UDim2.new(0, 6, 0, 6 + ((index - 1) * 34))
+    btn.BackgroundColor3 = theme.surface
     btn.BorderSizePixel = 0
-    btn.Text = "OFF"
+    btn.Text = "  " .. name
     btn.TextColor3 = theme.subtext
+    btn.Font = Enum.Font.GothamMedium
+    btn.TextSize = 12
+    btn.TextXAlignment = Enum.TextXAlignment.Left
+    btn.AutoButtonColor = false
+    btn.ZIndex = 12
+    btn.Parent = TabContainer
+    addCorner(btn, 4)
+
+    local content = Instance.new("Frame")
+    content.Size = UDim2.new(1, -16, 1, -16)
+    content.Position = UDim2.new(0, 8, 0, 8)
+    content.BackgroundTransparency = 1
+    content.Visible = (index == 1)
+    content.ZIndex = 12
+    content.Parent = ContentContainer
+
+    btn.MouseButton1Click:Connect(function()
+        for _, tabBtn in pairs(TabContainer:GetChildren()) do
+            if tabBtn:IsA("TextButton") then
+                tabBtn.BackgroundColor3 = theme.surface
+                tabBtn.TextColor3 = theme.subtext
+            end
+        end
+        for _, v in pairs(ContentContainer:GetChildren()) do
+            if v:IsA("Frame") then v.Visible = false end
+        end
+        btn.BackgroundColor3 = theme.surfaceLight
+        btn.TextColor3 = theme.text
+        content.Visible = true
+    end)
+
+    if index == 1 then
+        btn.BackgroundColor3 = theme.surfaceLight
+        btn.TextColor3 = theme.text
+    end
+    Tabs[name] = content
+end
+
+local function CreateButton(parent, text, pos, size, color, hoverColor)
+    local btn = Instance.new("TextButton")
+    btn.Size = size
+    btn.Position = pos
+    btn.BackgroundColor3 = color or theme.accent
+    btn.BorderSizePixel = 0
+    btn.Text = text
+    btn.TextColor3 = theme.text
     btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 10
+    btn.TextSize = 11
     btn.AutoButtonColor = false
     btn.ZIndex = 13
-    btn.Parent = container
+    btn.Parent = parent
     addCorner(btn, 4)
-    
-    local state = false
-    btn.MouseButton1Click:Connect(function()
-        state = not state
-        btn.Text = state and "ON" or "OFF"
-        btn.BackgroundColor3 = state and theme.accent or theme.surfaceLight
-        btn.TextColor3 = state and theme.text or theme.subtext
-    end)
-    
-    return function() return state end
+    return btn
 end
 
-local isAutoLift = CreateToggle("Auto Lift Weight", 0)
-local isAutoSell = CreateToggle("Auto Sell Weight", 42)
-local isAutoKill = CreateToggle("Auto Kill Demons", 84)
-local isAutoBuy = CreateToggle("Auto Buy & Equip Best", 126)
+-- ================= TAB 1: REMOTE SPY =================
+CreateTab("Remote Spy", 1)
+local remoteContent = Tabs["Remote Spy"]
 
-local statusLabel = Instance.new("TextLabel")
-statusLabel.Size = UDim2.new(1, 0, 0, 30)
-statusLabel.Position = UDim2.new(0, 0, 0, 168)
-statusLabel.BackgroundColor3 = theme.surface
-statusLabel.Text = " Status: Idle"
-statusLabel.TextColor3 = theme.subtext
-statusLabel.Font = Enum.Font.Code
-statusLabel.TextSize = 11
-statusLabel.TextXAlignment = Enum.TextXAlignment.Left
-statusLabel.ZIndex = 13
-statusLabel.Parent = Content
-addCorner(statusLabel, 4)
+local hookBtn = CreateButton(remoteContent, "Start Spy", UDim2.new(0, 0, 0, 0), UDim2.new(0, 100, 0, 28))
+local clearBtn = CreateButton(remoteContent, "Clear", UDim2.new(0, 106, 0, 0), UDim2.new(0, 60, 0, 28), theme.surfaceLight, theme.surface)
 
-local cashLabel = Instance.new("TextLabel")
-cashLabel.Size = UDim2.new(1, 0, 0, 30)
-cashLabel.Position = UDim2.new(0, 0, 0, 204)
-cashLabel.BackgroundColor3 = theme.surface
-cashLabel.Text = " Live Cash: Reading..."
-cashLabel.TextColor3 = theme.subtext
-cashLabel.Font = Enum.Font.Code
-cashLabel.TextSize = 11
-cashLabel.TextXAlignment = Enum.TextXAlignment.Left
-cashLabel.ZIndex = 13
-cashLabel.Parent = Content
-addCorner(cashLabel, 4)
+local scrollFrame = Instance.new("ScrollingFrame")
+scrollFrame.Size = UDim2.new(1, 0, 1, -34)
+scrollFrame.Position = UDim2.new(0, 0, 0, 34)
+scrollFrame.BackgroundColor3 = theme.surface
+scrollFrame.BorderSizePixel = 0
+scrollFrame.ScrollBarThickness = 3
+scrollFrame.ScrollBarImageColor3 = theme.border
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+scrollFrame.ZIndex = 12
+scrollFrame.Parent = remoteContent
+addCorner(scrollFrame, 6)
 
--- ================= REMOTES =================
-local eventsFolder = ReplicatedStorage:WaitForChild("Events")
-local liftingRemote = eventsFolder:WaitForChild("l")
-local sellRemote = eventsFolder:WaitForChild("SellMuscle")
-local buyWeightRemote = eventsFolder:WaitForChild("BuyWeight")
-local equipRemote = eventsFolder:WaitForChild("Equip")
-local punchRemote = eventsFolder:WaitForChild("Punch")
+local listLayout = Instance.new("UIListLayout")
+listLayout.Padding = UDim.new(0, 4)
+listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+listLayout.Parent = scrollFrame
 
-local npcFolder = workspace:FindFirstChild("NPC") or workspace
-
--- ================= AUTO BUY LOGIC =================
-local weightTable = {
-    {Image = "rbxassetid://90040909997612", Name = "Dumbbell", Price = 99, MuscleGain = 50, ToolName = "Dumbbell", donate = true},
-    {Image = "rbxassetid://11827297027", Name = "Mercury", Price = 5.5500089799999996e+19, MuscleGain = 323020000, ToolName = "Mercury"},
-    {Image = "rbxassetid://11485876824", Name = "Mars", Price = 8.4400089799999996e+19, MuscleGain = 420020000, ToolName = "Mars"},
-    {Image = "rbxassetid://11827300814", Name = "Saturn", Price = 1.250000898e+20, MuscleGain = 550020000, ToolName = "Saturn"},
-    {Image = "rbxassetid://11827303698", Name = "Jupiter", Price = 1.9900008980000001e+20, MuscleGain = 718020000, ToolName = "Jupiter"},
-    {Image = "rbxassetid://12357314008", Name = "Super Saturn", Price = 3.7000000897999999e+21, MuscleGain = 1770020000, ToolName = "Super Saturn"},
-    {Image = "rbxassetid://15208576593", Name = "Sedna Bar", Price = 1.0190000089800001e+22, MuscleGain = 4150020000, ToolName = "Sedna Bar"},
-    {Image = "rbxassetid://12357332324", Name = "Sun", Price = 2.6800000089799998e+22, MuscleGain = 9990020000, ToolName = "Sun"},
-    {Image = "rbxassetid://15233378141", Name = "Mini Galaxy", Price = 1.4268000000898e+24, MuscleGain = 23890020000, ToolName = "Mini Galaxy"},
-    {Image = "rbxassetid://15233388146", Name = "Earth Bar", Price = 3.7108000000898001e+24, MuscleGain = 57890020000, ToolName = "Earth Bar"},
-    {Image = "rbxassetid://15233395395", Name = "Black Hole", Price = 9.5568000000898002e+24, MuscleGain = 139890020000, ToolName = "Black Hole"},
-    {Image = "rbxassetid://11843195260", Name = "Four Dimensions", Price = 6.2685680000008975e+26, MuscleGain = 329890020000, ToolName = "Four Dimensions"},
-    {Image = "rbxassetid://11843199119", Name = "Sun Bar", Price = 1.5908568000000897e+27, MuscleGain = 790890020000, ToolName = "Sun Bar"},
-    {Image = "rbxassetid://12555012758", Name = "Holy Star", Price = 4.0498568000000896e+27, MuscleGain = 1889890020000, ToolName = "Holy Star"},
-    {Image = "rbxassetid://12571179207", Name = "Meteoroids Ring", Price = 3.1140085680000007e+29, MuscleGain = 4559890020000, ToolName = "Meteoroids Ring"},
-    {Image = "rbxassetid://12576381860", Name = "Meteor Bar", Price = 7.9800085680000007e+29, MuscleGain = 11009890020000, ToolName = "Meteor Bar"},
-    {Image = "rbxassetid://12576390537", Name = "Water Sphere", Price = 2.0200008568e+30, MuscleGain = 26209890020000, ToolName = "Water Sphere"},
-    {Image = "rbxassetid://12576482223", Name = "Super Meteorite", Price = 1.790004008568e+32, MuscleGain = 62909890020000, ToolName = "Super Meteorite"},
-    {Image = "rbxassetid://12576511053", Name = "Cross Stars", Price = 4.5576040085680003e+32, MuscleGain = 150909890020000, ToolName = "Cross Stars"},
-    {Image = "rbxassetid://12605028192", Name = "Fiery Star", Price = 1.0557604008568e+33, MuscleGain = 362909890020000, ToolName = "Fiery Star"},
-    {Image = "rbxassetid://12605201019", Name = "Super Venus", Price = 1.150557604008568e+35, MuscleGain = 855909890020000, ToolName = "Super Venus"},
-    {Image = "rbxassetid://12605221627", Name = "Atomic Suns", Price = 2.780557604008568e+35, MuscleGain = 2085909890020000, ToolName = "Atomic Suns"},
-    {Image = "rbxassetid://12605329723", Name = "Lightning Cube", Price = 7.0500576040085684e+35, MuscleGain = 5005909890020000, ToolName = "Lightning Cube"},
-    {Image = "rbxassetid://12610262627", Name = "Atmosphere", Price = 8.1000005760400854e+37, MuscleGain = 12005909890020000, ToolName = "Atmosphere"},
-    {Image = "rbxassetid://12610738461", Name = "Five Dimensions", Price = 2.0200000576040086e+38, MuscleGain = 28005909890020000, ToolName = "Five Dimensions"},
-    {Image = "rbxassetid://12610777312", Name = "Space Stone", Price = 4.9900000576040089e+38, MuscleGain = 69005909890020000, ToolName = "Space Stone"},
-    {Image = "rbxassetid://12610899726", Name = "Universe", Price = 6.7440000005760403e+40, MuscleGain = 1.6600590989002e+17, ToolName = "Universe"},
-    {Image = "rbxassetid://12610978919", Name = "Mind Stone", Price = 1.714400000057604e+41, MuscleGain = 3.9900590989001997e+17, ToolName = "Mind Stone"},
-    {Image = "rbxassetid://12611026743", Name = "Reality Stone", Price = 4.3644000000576044e+41, MuscleGain = 9.5500590989001997e+17, ToolName = "Reality Stone"},
-    {Image = "rbxassetid://12611079550", Name = "Soul Stone", Price = 5.7400440000005764e+43, MuscleGain = 2.2950059098900201e+18, ToolName = "Soul Stone"},
-    {Image = "rbxassetid://12611195418", Name = "Time Stone", Price = 1.5440044000000576e+44, MuscleGain = 5.5950059098900204e+18, ToolName = "Time Stone"},
-    {Image = "rbxassetid://12611226887", Name = "Power Stone", Price = 4.0740044000000578e+44, MuscleGain = 1.3195005909890019e+19, ToolName = "Power Stone"},
-    {Image = "rbxassetid://12611334119", Name = "Cosmo Bar", Price = 8.2000400440000002e+46, MuscleGain = 3.1195005909890019e+19, ToolName = "Cosmo Bar"},
-    {Image = "rbxassetid://12611413446", Name = "Galaxy Bar", Price = 2.2600040044000002e+47, MuscleGain = 7.5195005909890023e+19, ToolName = "Galaxy Bar"},
-    {Image = "rbxassetid://12611466834", Name = "Universe Bar", Price = 1.07900040044e+48, MuscleGain = 9.9951950059098905e+20, ToolName = "Universe Bar"},
-    {Image = "rbxassetid://6116927223", Name = "Sharkupiter", Price = 4.8107900040043999e+50, MuscleGain = 2.5995195005909892e+21, ToolName = "Sharkupiter"},
-    {Image = "rbxassetid://6117402895", Name = "Giftune", Price = 1.3490790004004399e+51, MuscleGain = 6.1995195005909892e+21, ToolName = "Giftune"},
-    {Image = "rbxassetid://6117574753", Name = "Aurora Way", Price = 3.5490790004004399e+51, MuscleGain = 1.4499519500590988e+22, ToolName = "Aurora Way"},
-    {Image = "rbxassetid://6117630779", Name = "Eternity", Price = 4.5254907900040042e+53, MuscleGain = 3.5499519500590988e+22, ToolName = "Eternity"},
-    {Image = "rbxassetid://6118056941", Name = "Cashensione", Price = 1.1925490790004005e+54, MuscleGain = 7.9499519500590992e+22, ToolName = "Cashensione"},
-    {Image = "rbxassetid://6118057710", Name = "Past", Price = 2.8625490790004005e+54, MuscleGain = 1.9949951950059098e+23, ToolName = "Past"},
-    {Image = "rbxassetid://6118058233", Name = "Future", Price = 3.8386254907900042e+56, MuscleGain = 4.5549951950059098e+23, ToolName = "Future"},
-    {Image = "rbxassetid://6118058977", Name = "Infection", Price = 9.3386254907900035e+56, MuscleGain = 1.115499519500591e+24, ToolName = "Infection"},
-    {Image = "rbxassetid://6118060132", Name = "Mutation", Price = 2.4098625490790005e+57, MuscleGain = 2.9954995195005908e+24, ToolName = "Mutation"},
-    {Image = "rbxassetid://6118735658", Name = "Godly 1st Class", Price = 2.4240986254907899e+59, MuscleGain = 6.6654995195005906e+24, ToolName = "Godly 1st Class"},
-    {Image = "rbxassetid://6118736060", Name = "Godly 2nd Class", Price = 8.0340986254907899e+59, MuscleGain = 1.5554995195005911e+25, ToolName = "Godly 2nd Class"},
-    {Image = "rbxassetid://6118736391", Name = "Godly 3rd Class", Price = 1.963409862549079e+60, MuscleGain = 3.6954995195005908e+25, ToolName = "Godly 3rd Class"},
-    {Image = "rbxassetid://6118736722", Name = "Godly 4th Class", Price = 2.7906340986254909e+62, MuscleGain = 8.9954995195005911e+25, ToolName = "Godly 4th Class"},
-    {Image = "rbxassetid://6118737032", Name = "Godly 5th Class", Price = 7.1106340986254908e+62, MuscleGain = 2.3295499519500592e+26, ToolName = "Godly 5th Class"},
-    {Image = "rbxassetid://6118806814", Name = "Godly 6th Class", Price = 1.9090634098625491e+63, MuscleGain = 5.1595499519500589e+26, ToolName = "Godly 6th Class"},
-    {Image = "rbxassetid://6118982215", Name = "Godly 7th Class", Price = 2.2100906340986256e+65, MuscleGain = 1.255954995195006e+27, ToolName = "Godly 7th Class"},
-    {Image = "rbxassetid://6118982635", Name = "Godly 8th Class", Price = 5.9900906340986258e+65, MuscleGain = 2.9959549951950059e+27, ToolName = "Godly 8th Class"},
-    {Image = "rbxassetid://6119020469", Name = "Godly 9th Class", Price = 1.5500090634098626e+66, MuscleGain = 9.9959549951950057e+27, ToolName = "Godly 9th Class"},
-    {Image = "rbxassetid://8387720885", Name = "1ST SUPER CLASS", Price = 3.3490090634098625e+69, MuscleGain = 5.5995954995195005e+28, ToolName = "1ST SUPER CLASS"},
-    {Image = "rbxassetid://8386896594", Name = "2ND SUPER CLASS", Price = 2.1349009063409864e+70, MuscleGain = 3.00995954995195e+29, ToolName = "2ND SUPER CLASS"},
-    {Image = "rbxassetid://8386896254", Name = "3RD SUPER CLASS", Price = 1.2834900906340987e+71, MuscleGain = 1.6609959549951951e+30, ToolName = "3RD SUPER CLASS"},
-    {Image = "rbxassetid://8381944324", Name = "4TH SUPER CLASS", Price = 7.9934900906340986e+71, MuscleGain = 9.1509959549951954e+30, ToolName = "4TH SUPER CLASS"},
-    {Image = "rbxassetid://8381944705", Name = "5TH SUPER CLASS", Price = 5.2503490090634101e+72, MuscleGain = 5.0050995954995194e+31, ToolName = "5TH SUPER CLASS"},
-    {Image = "rbxassetid://8381945294", Name = "6TH SUPER CLASS", Price = 3.3550349009063407e+73, MuscleGain = 2.7705099595499518e+32, ToolName = "6TH SUPER CLASS"}
-}
-
-local function parseCashString(str)
-    str = str:gsub(",", ""):gsub("Sxd", "")
-    str = str:gsub("%.", "")
-    local num = tonumber(str:match("^%d+"))
-    if not num then return 0 end
-    return num
-end
-
-local function getCurrentCash()
-    local playerGui = player:FindFirstChild("PlayerGui")
-    if not playerGui then return 0 end
-    for _, obj in ipairs(playerGui:GetDescendants()) do
-        if obj:IsA("TextLabel") and obj.Text:find("Sxd") then
-            return parseCashString(obj.Text)
-        end
-    end
-    return 0
-end
-
-local lastEquippedItemName = ""
-
-local function buyAndEquipBest()
-    local cash = getCurrentCash()
-    if cash <= 0 then return end
-    
-    local bestIndex = 1
-    local bestItem = weightTable[1]
-    for i, item in ipairs(weightTable) do
-        if cash >= item.Price then
-            bestIndex = i
-            bestItem = item
-        end
-    end
-    
-    if bestItem and bestItem.Name ~= lastEquippedItemName then
-        print("[APEX] Attempting to buy:", bestItem.Name, "| Price:", bestItem.Price)
-        pcall(function()
-            buyWeightRemote:InvokeServer(bestIndex, weightTable, "Weights")
-            task.wait(1)
-            equipRemote:InvokeServer(99, "Weights")
-            lastEquippedItemName = bestItem.Name
-            print("[APEX] Successfully bought and equipped:", bestItem.Name)
-        end)
+local function serializeArg(v)
+    local t = typeof(v)
+    if t == "string" then
+        return string.format("%q", v)
+    elseif t == "number" or t == "boolean" or t == "nil" then
+        return tostring(v)
+    elseif t == "Instance" then
+        return string.format("game:GetService(\"%s\"):FindFirstChild(\"%s\", true)", v.Parent and v.Parent.Name or "Workspace", v.Name)
+    elseif t == "Vector3" then
+        return string.format("Vector3.new(%f, %f, %f)", v.X, v.Y, v.Z)
+    elseif t == "CFrame" then
+        local c = v:GetComponents()
+        return string.format("CFrame.new(%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f)", c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], c[9], c[10], c[11], c[12])
+    elseif t == "Color3" then
+        return string.format("Color3.new(%f, %f, %f)", v.R, v.G, v.B)
+    else
+        return "nil --[[ unsupported: " .. t .. " ]]"
     end
 end
 
--- ================= LOOPS =================
-local liftThread, sellThread, killThread, buyThread
-
-local function startLift()
-    if liftThread then task.cancel(liftThread) end
-    liftThread = task.spawn(function()
-        while ScreenGui.Parent do
-            if isAutoLift() then
-                statusLabel.Text = " Status: Auto Lifting..."
-                pcall(function() liftingRemote:FireServer() end)
-                task.wait(0.1)
-            else
-                task.wait(0.1)
+local function generateScript(remote, method, args)
+    local script = ""
+    script = script .. "local remote = game:GetService(\"" .. remote.Parent.Name .. "\")"
+    local parentPath = remote.Parent:GetFullName():gsub("^game:GetService%(\"[^\"]+\"%)", "")
+    if parentPath and parentPath ~= "" then
+        for part in parentPath:gmatch("[^%.]+") do
+            if part ~= "" then
+                script = script .. ":WaitForChild(\"" .. part .. "\")"
             end
         end
-    end)
+    end
+    script = script .. ":WaitForChild(\"" .. remote.Name .. "\")\n\n"
+    
+    local argStrs = {}
+    for i, v in ipairs(args) do
+        argStrs[#argStrs+1] = serializeArg(v)
+    end
+    
+    if method == "FireServer" then
+        if #argStrs > 0 then
+            script = script .. "remote:FireServer(" .. table.concat(argStrs, ", ") .. ")"
+        else
+            script = script .. "remote:FireServer()"
+        end
+    elseif method == "InvokeServer" then
+        if #argStrs > 0 then
+            script = script .. "local result = remote:InvokeServer(" .. table.concat(argStrs, ", ") .. ")"
+        else
+            script = script .. "local result = remote:InvokeServer()"
+        end
+    end
+    return script
 end
 
-local function startSell()
-    if sellThread then task.cancel(sellThread) end
-    sellThread = task.spawn(function()
-        while ScreenGui.Parent do
-            if isAutoSell() then
-                statusLabel.Text = " Status: Auto Selling..."
-                pcall(function() sellRemote:InvokeServer() end)
-                task.wait(0.5)
-            else
-                task.wait(0.1)
+local function formatArgs(args)
+    local parts = {}
+    for i, v in ipairs(args) do
+        local t = type(v)
+        if t == "string" then
+            table.insert(parts, string.format("%q", v))
+        elseif t == "Instance" then
+            table.insert(parts, v:GetFullName())
+        elseif t == "table" or t == "userdata" then
+            table.insert(parts, "{...}")
+        else
+            table.insert(parts, tostring(v))
+        end
+    end
+    local str = table.concat(parts, ", ")
+    if #str > 40 then return string.sub(str, 1, 40) .. "..." end
+    return str
+end
+
+local hookActive = false
+local remoteQueue = {}
+local maxRows = 50
+
+local function addRemoteRow(data)
+    local self, method, args = data.self, data.method, data.args
+    local remoteName = self.Name
+    local path = self:GetFullName()
+    local argsStr = formatArgs(args)
+    local generatedScript = generateScript(self, method, args)
+
+    local frameCount = 0
+    for _, child in ipairs(scrollFrame:GetChildren()) do
+        if child:IsA("Frame") then
+            frameCount = frameCount + 1
+        end
+    end
+
+    if frameCount >= maxRows then
+        for _, child in ipairs(scrollFrame:GetChildren()) do
+            if child:IsA("Frame") then
+                child:Destroy()
+                break
             end
         end
-    end)
-end
+    end
 
-local function startKill()
-    if killThread then task.cancel(killThread) end
-    killThread = task.spawn(function()
-        while ScreenGui.Parent do
-            if isAutoKill() then
-                statusLabel.Text = " Status: Finding Demon..."
-                local target = nil
-                local myChar = player.Character
-                local myRoot = myChar and myChar:FindFirstChild("HumanoidRootPart")
-                
-                if myRoot then
-                    local myPos = myRoot.Position
-                    local dist = math.huge
-                    
-                    for _, obj in ipairs(npcFolder:GetChildren()) do
-                        if obj:IsA("Model") and obj.Name:lower():find("demon") and obj:FindFirstChild("Humanoid") and obj.Humanoid.Health > 0 then
-                            local root = obj:FindFirstChild("HumanoidRootPart") or obj.PrimaryPart
-                            if root then
-                                local d = (root.Position - myPos).Magnitude
-                                if d < dist then
-                                    dist = d
-                                    target = obj
-                                end
-                            end
-                        end
-                    end
-                end
-                
-                if target then
-                    statusLabel.Text = " Status: Killing " .. target.Name
-                    local root = target:FindFirstChild("HumanoidRootPart") or target.PrimaryPart
-                    
-                    if root and myChar and myRoot then
-                        for _, part in ipairs(myChar:GetDescendants()) do
-                            if part:IsA("BasePart") then part.CanCollide = false end
-                        end
-                        
-                        myRoot.Anchored = true
-                        myRoot.CFrame = root.CFrame
-                        task.wait(0.1)
-                        
-                        for i = 1, 5 do
-                            pcall(function() punchRemote:FireServer() end)
-                            task.wait(0.1)
-                        end
-                        
-                        myRoot.Anchored = false
-                    end
-                else
-                    statusLabel.Text = " Status: No Demons Found"
-                end
-                task.wait(0.1)
-            else
-                task.wait(0.1)
-            end
-        end
-    end)
-end
+    local row = Instance.new("Frame")
+    row.Size = UDim2.new(1, -8, 0, 56)
+    row.BackgroundColor3 = theme.surfaceLight
+    row.BorderSizePixel = 0
+    row.ZIndex = 13
+    row.Parent = scrollFrame
+    addCorner(row, 4)
 
-local function startBuy()
-    if buyThread then task.cancel(buyThread) end
-    buyThread = task.spawn(function()
-        while ScreenGui.Parent do
-            if isAutoBuy() then
-                statusLabel.Text = " Status: Buying & Equipping Best..."
-                buyAndEquipBest()
-                task.wait(3)
-            else
-                task.wait(0.1)
-            end
-        end
-    end)
-end
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Size = UDim2.new(1, -190, 0, 14)
+    nameLabel.Position = UDim2.new(0, 8, 0, 4)
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.Text = "[" .. method .. "] " .. remoteName
+    nameLabel.TextColor3 = theme.text
+    nameLabel.Font = Enum.Font.GothamBold
+    nameLabel.TextSize = 11
+    nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+    nameLabel.ZIndex = 14
+    nameLabel.Parent = row
 
--- Live Cash Reader Loop
-task.spawn(function()
-    while ScreenGui.Parent do
-        local cash = getCurrentCash()
-        cashLabel.Text = " Live Cash: " .. string.format("%.3f", cash / 1000) .. "Sxd"
+    local pathLabel = Instance.new("TextLabel")
+    pathLabel.Size = UDim2.new(1, -190, 0, 10)
+    pathLabel.Position = UDim2.new(0, 8, 0, 18)
+    pathLabel.BackgroundTransparency = 1
+    pathLabel.Text = path
+    pathLabel.TextColor3 = theme.subtext
+    pathLabel.Font = Enum.Font.Code
+    pathLabel.TextSize = 9
+    pathLabel.TextXAlignment = Enum.TextXAlignment.Left
+    pathLabel.ZIndex = 14
+    pathLabel.Parent = row
+
+    local argsLabel = Instance.new("TextLabel")
+    argsLabel.Size = UDim2.new(1, -190, 0, 10)
+    argsLabel.Position = UDim2.new(0, 8, 0, 30)
+    argsLabel.BackgroundTransparency = 1
+    argsLabel.Text = "Args: " .. argsStr
+    argsLabel.TextColor3 = theme.subtext
+    argsLabel.Font = Enum.Font.Code
+    argsLabel.TextSize = 9
+    argsLabel.TextXAlignment = Enum.TextXAlignment.Left
+    argsLabel.ZIndex = 14
+    argsLabel.Parent = row
+
+    local copyBtn = Instance.new("TextButton")
+    copyBtn.Size = UDim2.new(0, 54, 0, 22)
+    copyBtn.Position = UDim2.new(1, -174, 0, 4)
+    copyBtn.BackgroundColor3 = theme.surface
+    copyBtn.Text = "Copy"
+    copyBtn.TextColor3 = theme.text
+    copyBtn.Font = Enum.Font.GothamBold
+    copyBtn.TextSize = 10
+    copyBtn.AutoButtonColor = false
+    copyBtn.ZIndex = 14
+    copyBtn.Parent = row
+    addCorner(copyBtn, 4)
+
+    local replayBtn = Instance.new("TextButton")
+    replayBtn.Size = UDim2.new(0, 54, 0, 22)
+    replayBtn.Position = UDim2.new(1, -116, 0, 4)
+    replayBtn.BackgroundColor3 = theme.accent
+    replayBtn.Text = "Replay"
+    replayBtn.TextColor3 = theme.text
+    replayBtn.Font = Enum.Font.GothamBold
+    replayBtn.TextSize = 10
+    replayBtn.AutoButtonColor = false
+    replayBtn.ZIndex = 14
+    replayBtn.Parent = row
+    addCorner(replayBtn, 4)
+
+    local loopBtn = Instance.new("TextButton")
+    loopBtn.Size = UDim2.new(0, 54, 0, 22)
+    loopBtn.Position = UDim2.new(1, -58, 0, 4)
+    loopBtn.BackgroundColor3 = theme.surface
+    loopBtn.Text = "Loop"
+    loopBtn.TextColor3 = theme.subtext
+    loopBtn.Font = Enum.Font.GothamBold
+    loopBtn.TextSize = 10
+    loopBtn.AutoButtonColor = false
+    loopBtn.ZIndex = 14
+    loopBtn.Parent = row
+    addCorner(loopBtn, 4)
+
+    local isLooping = false
+    local loopThread
+
+    copyBtn.MouseButton1Click:Connect(function()
+        setclipboard(generatedScript)
+        copyBtn.Text = "Copied"
+        copyBtn.BackgroundColor3 = theme.accent
         task.wait(1)
+        copyBtn.Text = "Copy"
+        copyBtn.BackgroundColor3 = theme.surface
+    end)
+
+    replayBtn.MouseButton1Click:Connect(function()
+        if self and self.Parent then
+            local success = pcall(function()
+                if method == "FireServer" then
+                    self:FireServer(unpack(args))
+                else
+                    self:InvokeServer(unpack(args))
+                end
+            end)
+            replayBtn.Text = success and "Sent" or "Err"
+            replayBtn.BackgroundColor3 = success and theme.accent or theme.surface
+            task.wait(0.5)
+            replayBtn.Text = "Replay"
+            replayBtn.BackgroundColor3 = theme.accent
+        end
+    end)
+
+    loopBtn.MouseButton1Click:Connect(function()
+        isLooping = not isLooping
+        if isLooping then
+            loopBtn.Text = "Stop"
+            loopBtn.BackgroundColor3 = theme.accent
+            loopBtn.TextColor3 = theme.text
+            loopThread = task.spawn(function()
+                while isLooping do
+                    if self and self.Parent then
+                        pcall(function()
+                            if method == "FireServer" then
+                                self:FireServer(unpack(args))
+                            else
+                                self:InvokeServer(unpack(args))
+                            end
+                        end)
+                    end
+                    task.wait(0.5)
+                end
+            end)
+        else
+            loopBtn.Text = "Loop"
+            loopBtn.BackgroundColor3 = theme.surface
+            loopBtn.TextColor3 = theme.subtext
+            if loopThread then task.cancel(loopThread) end
+        end
+    end)
+
+    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y + 4)
+end
+
+local oldNamecall
+local hookOk, hookErr = pcall(function()
+    oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
+        if not hookActive then return oldNamecall(self, ...) end
+        local method = getnamecallmethod()
+        if method == "FireServer" or method == "InvokeServer" then
+            if not checkcaller() then
+                table.insert(remoteQueue, {self = self, method = method, args = {...}})
+            end
+        end
+        return oldNamecall(self, ...)
+    end)
+end)
+
+if not hookOk then
+    hookBtn.Text = "Hook Failed"
+else
+    hookBtn.MouseButton1Click:Connect(function()
+        hookActive = not hookActive
+        hookBtn.Text = hookActive and "Stop Spy" or "Start Spy"
+        hookBtn.BackgroundColor3 = hookActive and theme.accent or theme.surface
+    end)
+end
+
+clearBtn.MouseButton1Click:Connect(function()
+    for _, child in ipairs(scrollFrame:GetChildren()) do
+        if child:IsA("Frame") then child:Destroy() end
+    end
+    remoteQueue = {}
+    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(0.05)
+        while #remoteQueue > 0 do
+            local data = table.remove(remoteQueue, 1)
+            local self = data.self
+            local method = data.method
+            if typeof(self) == "Instance" and (self:IsA("RemoteEvent") or self:IsA("RemoteFunction") or self:IsA("UnreliableRemoteEvent")) then
+                addRemoteRow(data)
+            end
+        end
     end
 end)
 
-startLift()
-startSell()
-startKill()
-startBuy()
+-- ================= TAB 2: EXPLOITS (LOADSTRING LIST) =================
+CreateTab("Exploits", 2)
+local exploitContent = Tabs["Exploits"]
+
+-- PUT YOUR CUSTOM SCRIPTS HERE
+local customScripts = {
+    {
+        Name = "Lifting Simulator Script",
+        URL = "https://raw.githubusercontent.com/CDOTSCRIPTING/roblox-hub/refs/heads/main/Lifting%20Simulator%20REBORN?token=GHSAT0AAAAAAEOIV7WH7IMDW5EAX2VMXV342XDNDSA"
+    },
+    {
+        Name = "COMING SOON",
+        URL = ""
+    },
+    {
+        Name = "COMING SOON",
+        URL = ""
+    }
+}
+
+local scriptScroll = Instance.new("ScrollingFrame")
+scriptScroll.Size = UDim2.new(1, 0, 1, -10)
+scriptScroll.Position = UDim2.new(0, 0, 0, 0)
+scriptScroll.BackgroundTransparency = 1
+scriptScroll.ScrollBarThickness = 3
+scriptScroll.ScrollBarImageColor3 = theme.border
+scriptScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+scriptScroll.ZIndex = 13
+scriptScroll.Parent = exploitContent
+
+local scriptListLayout = Instance.new("UIListLayout")
+scriptListLayout.Padding = UDim.new(0, 6)
+scriptListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+scriptListLayout.Parent = scriptScroll
+
+local logLabel = Instance.new("TextLabel")
+logLabel.Size = UDim2.new(1, 0, 0, 30)
+logLabel.BackgroundColor3 = theme.surface
+logLabel.Text = " Ready."
+logLabel.TextColor3 = theme.subtext
+logLabel.Font = Enum.Font.Code
+logLabel.TextSize = 11
+logLabel.TextXAlignment = Enum.TextXAlignment.Left
+logLabel.ZIndex = 13
+logLabel.Parent = exploitContent
+addCorner(logLabel, 4)
+
+for i, scriptData in ipairs(customScripts) do
+    local row = Instance.new("Frame")
+    row.Size = UDim2.new(1, -8, 0, 46)
+    row.BackgroundColor3 = theme.surface
+    row.BorderSizePixel = 0
+    row.ZIndex = 14
+    row.Parent = scriptScroll
+    addCorner(row, 4)
+
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Size = UDim2.new(1, -120, 1, 0)
+    nameLabel.Position = UDim2.new(0, 12, 0, 0)
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.Text = scriptData.Name
+    nameLabel.TextColor3 = theme.text
+    nameLabel.Font = Enum.Font.GothamBold
+    nameLabel.TextSize = 12
+    nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+    nameLabel.ZIndex = 15
+    nameLabel.Parent = row
+
+    local loadBtn = Instance.new("TextButton")
+    loadBtn.Size = UDim2.new(0, 90, 0, 28)
+    loadBtn.Position = UDim2.new(1, -100, 0, 9)
+    loadBtn.BackgroundColor3 = theme.accent
+    loadBtn.BorderSizePixel = 0
+    loadBtn.Text = "Load"
+    loadBtn.TextColor3 = theme.text
+    loadBtn.Font = Enum.Font.GothamBold
+    loadBtn.TextSize = 11
+    loadBtn.AutoButtonColor = false
+    loadBtn.ZIndex = 15
+    loadBtn.Parent = row
+    addCorner(loadBtn, 4)
+
+    loadBtn.MouseButton1Click:Connect(function()
+        if scriptData.URL == "" then
+            logLabel.Text = " [ERROR] Script URL is empty."
+            return
+        end
+        logLabel.Text = " [EXEC] Loading " .. scriptData.Name .. "..."
+        local success, err = pcall(function()
+            loadstring(game:HttpGet(scriptData.URL))()
+        end)
+        if success then
+            logLabel.Text = " [SUCCESS] " .. scriptData.Name .. " loaded."
+        else
+            logLabel.Text = " [ERROR] " .. tostring(err)
+        end
+    end)
+end
+
+scriptScroll.CanvasSize = UDim2.new(0, 0, 0, scriptListLayout.AbsoluteContentSize.Y + 40)
+scriptListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    scriptScroll.CanvasSize = UDim2.new(0, 0, 0, scriptListLayout.AbsoluteContentSize.Y + 40)
+end)
