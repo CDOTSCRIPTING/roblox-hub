@@ -757,15 +757,15 @@ local exploitContent = Tabs["Exploits"]
 local customScripts = {
     {
         Name = "Lifting Simulator Script",
-        URL = "" -- Add your Lifting Sim URL here
+        URL = "loadstring(game:HttpGet("https://raw.githubusercontent.com/CDOTSCRIPTING/roblox-hub/refs/heads/main/Lifting%20Simulator%20REBORN?token=GHSAT0AAAAAAEOIV7WHHS4DRKRSHIJVRMIK2XDM3CQ"))()"
     },
     {
-        Name = "Generic Admin",
-        URL = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"
+        Name = "COMING SOON",
+        URL = "YOUR LOADSTRING HERE"
     },
     {
-        Name = "Dex Explorer",
-        URL = "https://raw.githubusercontent.com/Babyhamsta/RBLX_Scripts/main/Universal/Simple%20Dex.lua"
+        Name = "COMING SOON",
+        URL = "YOUR LOADSTRING HERE"
     }
 }
 
