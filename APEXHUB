@@ -761,11 +761,11 @@ local customScripts = {
     },
     {
         Name = "COMING SOON",
-        URL = "YOUR LOADSTRING HERE"
+        URL = ""
     },
     {
         Name = "COMING SOON",
-        URL = "YOUR LOADSTRING HERE"
+        URL = ""
     }
 }
 
