@@ -413,8 +413,11 @@ BackBtn.MouseLeave:Connect(function()
 end)
 
 BackBtn.MouseButton1Click:Connect(function()
-    pcall(function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/CDOTSCRIPTING/roblox-hub/refs/heads/main/APEXHUB"))()
+    ScreenGui:Destroy()
+    task.defer(function()
+        pcall(function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/CDOTSCRIPTING/roblox-hub/refs/heads/main/APEXHUB"))()
+        end)
     end)
 end)
 
