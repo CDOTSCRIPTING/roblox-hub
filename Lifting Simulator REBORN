@@ -12,8 +12,7 @@ if CoreGui:FindFirstChild("ApexServicesUI") then
 end
 
 -- ================= BACK TO LOADER CONFIG =================
-local LoaderURL = "https://raw.githubusercontent.com/CDOTSCRIPTING/roblox-hub/refs/heads/main/APEXHUB" -- Add your loader URL here
-
+local LoaderURL = "https://raw.githubusercontent.com/CDOTSCRIPTING/roblox-hub/refs/heads/main/APEXHUB"
 local theme = {
     bg = Color3.fromRGB(10, 10, 10),
     surface = Color3.fromRGB(18, 18, 18),
