@@ -757,7 +757,7 @@ local exploitContent = Tabs["Exploits"]
 local customScripts = {
     {
         Name = "Lifting Simulator Script",
-        URL = "loadstring(game:HttpGet("https://raw.githubusercontent.com/CDOTSCRIPTING/roblox-hub/refs/heads/main/APEXHUB?token=GHSAT0AAAAAAEOIV7WH4XDAWM4UXGRWBAGY2XDNBJQ"
+        URL = "https://raw.githubusercontent.com/CDOTSCRIPTING/roblox-hub/refs/heads/main/Lifting%20Simulator%20REBORN?token=GHSAT0AAAAAAEOIV7WH7IMDW5EAX2VMXV342XDNDSA"
     },
     {
         Name = "COMING SOON",
