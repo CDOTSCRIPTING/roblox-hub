@@ -11,8 +11,6 @@ if CoreGui:FindFirstChild("ApexServicesUI") then
     CoreGui.ApexServicesUI:Destroy()
 end
 
--- ================= BACK TO LOADER CONFIG =================
-local LoaderURL = "https://raw.githubusercontent.com/CDOTSCRIPTING/roblox-hub/refs/heads/main/APEXHUB"
 local theme = {
     bg = Color3.fromRGB(10, 10, 10),
     surface = Color3.fromRGB(18, 18, 18),
@@ -415,14 +413,9 @@ BackBtn.MouseLeave:Connect(function()
 end)
 
 BackBtn.MouseButton1Click:Connect(function()
-    local loaderURL = "https://raw.githubusercontent.com/CDOTSCRIPTING/roblox-hub/refs/heads/main/APEXHUB?token=GHSAT0AAAAAAEOIV7WGJZCFG2A3FPSFIAVQ2XDNMVQ"
-    if loaderURL ~= "" then
-        pcall(function()
-            loadstring(game:HttpGet(loaderURL))()
-        end)
-    else
-        print("[APEX] Loader URL is empty.")
-    end
+    pcall(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/CDOTSCRIPTING/roblox-hub/refs/heads/main/APEXHUB"))()
+    end)
 end)
 
 -- ================= REMOTES =================
