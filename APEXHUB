@@ -3,6 +3,9 @@ local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local player = Players.LocalPlayer
 
 if CoreGui:FindFirstChild("ApexServicesUI") then
     CoreGui.ApexServicesUI:Destroy()
@@ -40,6 +43,88 @@ ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
 ScreenGui.Parent = CoreGui
+
+-- ================= LOADING SCREEN =================
+local LoadingScreen = Instance.new("Frame")
+LoadingScreen.Size = UDim2.new(0, 380, 0, 360)
+LoadingScreen.Position = UDim2.new(0.5, -190, 0.5, -180)
+LoadingScreen.BackgroundColor3 = theme.bg
+LoadingScreen.BorderSizePixel = 0
+LoadingScreen.ZIndex = 500
+LoadingScreen.Parent = ScreenGui
+addCorner(LoadingScreen, 8)
+addStroke(LoadingScreen, theme.border, 1)
+
+local LoadTitle = Instance.new("TextLabel")
+LoadTitle.Size = UDim2.new(1, 0, 0, 50)
+LoadTitle.Position = UDim2.new(0, 0, 0, 30)
+LoadTitle.BackgroundTransparency = 1
+LoadTitle.Text = "APEX"
+LoadTitle.TextColor3 = theme.accent
+LoadTitle.Font = Enum.Font.GothamBlack
+LoadTitle.TextSize = 40
+LoadTitle.TextXAlignment = Enum.TextXAlignment.Center
+LoadTitle.ZIndex = 501
+LoadTitle.Parent = LoadingScreen
+
+local LoadConsole = Instance.new("TextLabel")
+LoadConsole.Size = UDim2.new(1, -40, 1, -120)
+LoadConsole.Position = UDim2.new(0, 20, 0, 80)
+LoadConsole.BackgroundTransparency = 1
+LoadConsole.Text = ""
+LoadConsole.TextColor3 = theme.subtext
+LoadConsole.Font = Enum.Font.Code
+LoadConsole.TextSize = 12
+LoadConsole.TextXAlignment = Enum.TextXAlignment.Left
+LoadConsole.TextYAlignment = Enum.TextYAlignment.Top
+LoadConsole.TextWrapped = true
+LoadConsole.ZIndex = 501
+LoadConsole.Parent = LoadingScreen
+
+local LoadBarBg = Instance.new("Frame")
+LoadBarBg.Size = UDim2.new(0, 300, 0, 6)
+LoadBarBg.Position = UDim2.new(0.5, -150, 1, -40)
+LoadBarBg.BackgroundColor3 = theme.surfaceLight
+LoadBarBg.BorderSizePixel = 0
+LoadBarBg.ZIndex = 501
+LoadBarBg.Parent = LoadingScreen
+addCorner(LoadBarBg, 3)
+
+local LoadBarFill = Instance.new("Frame")
+LoadBarFill.Size = UDim2.new(0, 0, 1, 0)
+LoadBarFill.BackgroundColor3 = theme.accent
+LoadBarFill.BorderSizePixel = 0
+LoadBarFill.ZIndex = 502
+LoadBarFill.Parent = LoadBarBg
+addCorner(LoadBarFill, 3)
+
+-- Typing animation logic
+local loadMessages = {
+    "[SYSTEM] Initializing Apex Services...",
+    "[SYSTEM] Searching for game scripts...",
+    "[SYSTEM] Fetching remote events...",
+    "[SYSTEM] Bypassing anti-cheat...",
+    "[SYSTEM] Loading Remote Spy module...",
+    "[SYSTEM] Preparing Auto-Lift & Sell...",
+    "[SYSTEM] Writing payload...",
+    "[SUCCESS] UI Loaded.",
+    "[SYSTEM] Executed by CJ."
+}
+
+local function typeMessage(msg, delay)
+    task.wait(delay)
+    local fullText = LoadConsole.Text
+    LoadConsole.Text = fullText .. msg .. "\n"
+end
+
+task.spawn(function()
+    for i, msg in ipairs(loadMessages) do
+        typeMessage(msg, 0.6)
+        TweenService:Create(LoadBarFill, TweenInfo.new(0.6, Enum.EasingStyle.Linear), {Size = UDim2.new(i / #loadMessages, 0, 1, 0)}):Play()
+    end
+    task.wait(1.5)
+    LoadingScreen:Destroy()
+end)
 
 -- ================= MAIN UI =================
 local Main = Instance.new("Frame")
@@ -202,7 +287,7 @@ local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(0, 200, 1, 0)
 Title.Position = UDim2.new(0, 12, 0, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "APEX SERVICES"
+Title.Text = "APEX SERVICES | BY CJ"
 Title.TextColor3 = theme.accent
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 13
@@ -432,7 +517,7 @@ end
 
 local hookActive = false
 local remoteQueue = {}
-local maxRows = 50 -- Maximum number of remotes to show at once
+local maxRows = 50
 
 local function addRemoteRow(data)
     local self, method, args = data.self, data.method, data.args
@@ -441,7 +526,6 @@ local function addRemoteRow(data)
     local argsStr = formatArgs(args)
     local generatedScript = generateScript(self, method, args)
 
-    -- Count existing frames (excluding UIListLayout)
     local frameCount = 0
     for _, child in ipairs(scrollFrame:GetChildren()) do
         if child:IsA("Frame") then
