@@ -129,7 +129,6 @@ LoadBarFill.ZIndex = 502
 LoadBarFill.Parent = LoadBarBg
 addCorner(LoadBarFill, 2)
 
--- Loading Animation Logic
 local messages = {
     "[SYSTEM] Initializing Apex Services...",
     "[SYSTEM] Fetching scripts from GitHub...",
@@ -750,87 +749,106 @@ task.spawn(function()
     end
 end)
 
--- ================= TAB 2: EXPLOITS =================
+-- ================= TAB 2: EXPLOITS (LOADSTRING LIST) =================
 CreateTab("Exploits", 2)
 local exploitContent = Tabs["Exploits"]
 
-local exploitInput = Instance.new("TextBox")
-exploitInput.Size = UDim2.new(1, 0, 0, 60)
-exploitInput.Position = UDim2.new(0, 0, 0, 0)
-exploitInput.BackgroundColor3 = theme.surface
-exploitInput.Text = ""
-exploitInput.PlaceholderText = "Paste script here..."
-exploitInput.TextColor3 = theme.text
-exploitInput.Font = Enum.Font.Code
-exploitInput.TextSize = 11
-exploitInput.ClearTextOnFocus = false
-exploitInput.MultiLine = true
-exploitInput.TextXAlignment = Enum.TextXAlignment.Left
-exploitInput.TextYAlignment = Enum.TextYAlignment.Top
-exploitInput.ZIndex = 13
-exploitInput.Parent = exploitContent
-addCorner(exploitInput, 4)
+-- PUT YOUR CUSTOM SCRIPTS HERE
+local customScripts = {
+    {
+        Name = "Lifting Simulator Script",
+        URL = "" -- Add your Lifting Sim URL here
+    },
+    {
+        Name = "Generic Admin",
+        URL = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"
+    },
+    {
+        Name = "Dex Explorer",
+        URL = "https://raw.githubusercontent.com/Babyhamsta/RBLX_Scripts/main/Universal/Simple%20Dex.lua"
+    }
+}
 
-local placeInput = Instance.new("TextBox")
-placeInput.Size = UDim2.new(0, 160, 0, 28)
-placeInput.Position = UDim2.new(0, 0, 0, 68)
-placeInput.BackgroundColor3 = theme.surface
-placeInput.Text = ""
-placeInput.PlaceholderText = "PlaceId"
-placeInput.TextColor3 = theme.text
-placeInput.Font = Enum.Font.GothamMedium
-placeInput.TextSize = 11
-placeInput.ClearTextOnFocus = false
-placeInput.ZIndex = 13
-placeInput.Parent = exploitContent
-addCorner(placeInput, 4)
+local scriptScroll = Instance.new("ScrollingFrame")
+scriptScroll.Size = UDim2.new(1, 0, 1, -10)
+scriptScroll.Position = UDim2.new(0, 0, 0, 0)
+scriptScroll.BackgroundTransparency = 1
+scriptScroll.ScrollBarThickness = 3
+scriptScroll.ScrollBarImageColor3 = theme.border
+scriptScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+scriptScroll.ZIndex = 13
+scriptScroll.Parent = exploitContent
 
-local saveExploit = CreateButton(exploitContent, "Save", UDim2.new(0, 168, 0, 68), UDim2.new(0, 70, 0, 28))
-local runBtn = CreateButton(exploitContent, "Run", UDim2.new(0, 244, 0, 68), UDim2.new(0, 70, 0, 28))
+local scriptListLayout = Instance.new("UIListLayout")
+scriptListLayout.Padding = UDim.new(0, 6)
+scriptListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+scriptListLayout.Parent = scriptScroll
 
 local logLabel = Instance.new("TextLabel")
-logLabel.Size = UDim2.new(1, 0, 0, 40)
-logLabel.Position = UDim2.new(0, 0, 0, 104)
+logLabel.Size = UDim2.new(1, 0, 0, 30)
 logLabel.BackgroundColor3 = theme.surface
 logLabel.Text = " Ready."
 logLabel.TextColor3 = theme.subtext
 logLabel.Font = Enum.Font.Code
-logLabel.TextSize = 10
+logLabel.TextSize = 11
 logLabel.TextXAlignment = Enum.TextXAlignment.Left
-logLabel.TextYAlignment = Enum.TextYAlignment.Top
-logLabel.TextWrapped = true
 logLabel.ZIndex = 13
 logLabel.Parent = exploitContent
 addCorner(logLabel, 4)
 
-local storedScript = ""
-local requiredPlaceId = nil
+for i, scriptData in ipairs(customScripts) do
+    local row = Instance.new("Frame")
+    row.Size = UDim2.new(1, -8, 0, 46)
+    row.BackgroundColor3 = theme.surface
+    row.BorderSizePixel = 0
+    row.ZIndex = 14
+    row.Parent = scriptScroll
+    addCorner(row, 4)
 
-saveExploit.MouseButton1Click:Connect(function()
-    storedScript = exploitInput.Text
-    requiredPlaceId = tonumber(placeInput.Text)
-    logLabel.Text = " [SAVED] PlaceId: " .. tostring(requiredPlaceId)
-end)
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Size = UDim2.new(1, -120, 1, 0)
+    nameLabel.Position = UDim2.new(0, 12, 0, 0)
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.Text = scriptData.Name
+    nameLabel.TextColor3 = theme.text
+    nameLabel.Font = Enum.Font.GothamBold
+    nameLabel.TextSize = 12
+    nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+    nameLabel.ZIndex = 15
+    nameLabel.Parent = row
 
-runBtn.MouseButton1Click:Connect(function()
-    if storedScript == "" then 
-        logLabel.Text = " [ERROR] No script saved."
-        return 
-    end
-    if requiredPlaceId and game.PlaceId ~= requiredPlaceId then
-        logLabel.Text = " [ERROR] PlaceId mismatch!"
-        return
-    end
-    logLabel.Text = " [EXEC] Running..."
-    local fn, err = loadstring(storedScript)
-    if fn then
-        local success, result = pcall(fn)
-        if success then 
-            logLabel.Text = " [SUCCESS] Executed." 
-        else 
-            logLabel.Text = " [RUNTIME ERROR] " .. tostring(result) 
+    local loadBtn = Instance.new("TextButton")
+    loadBtn.Size = UDim2.new(0, 90, 0, 28)
+    loadBtn.Position = UDim2.new(1, -100, 0, 9)
+    loadBtn.BackgroundColor3 = theme.accent
+    loadBtn.BorderSizePixel = 0
+    loadBtn.Text = "Load"
+    loadBtn.TextColor3 = theme.text
+    loadBtn.Font = Enum.Font.GothamBold
+    loadBtn.TextSize = 11
+    loadBtn.AutoButtonColor = false
+    loadBtn.ZIndex = 15
+    loadBtn.Parent = row
+    addCorner(loadBtn, 4)
+
+    loadBtn.MouseButton1Click:Connect(function()
+        if scriptData.URL == "" then
+            logLabel.Text = " [ERROR] Script URL is empty."
+            return
         end
-    else
-        logLabel.Text = " [SYNTAX ERROR] " .. tostring(err)
-    end
+        logLabel.Text = " [EXEC] Loading " .. scriptData.Name .. "..."
+        local success, err = pcall(function()
+            loadstring(game:HttpGet(scriptData.URL))()
+        end)
+        if success then
+            logLabel.Text = " [SUCCESS] " .. scriptData.Name .. " loaded."
+        else
+            logLabel.Text = " [ERROR] " .. tostring(err)
+        end
+    end)
+end
+
+scriptScroll.CanvasSize = UDim2.new(0, 0, 0, scriptListLayout.AbsoluteContentSize.Y + 40)
+scriptListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    scriptScroll.CanvasSize = UDim2.new(0, 0, 0, scriptListLayout.AbsoluteContentSize.Y + 40)
 end)
