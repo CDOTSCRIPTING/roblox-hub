@@ -757,7 +757,7 @@ local exploitContent = Tabs["Exploits"]
 local customScripts = {
     {
         Name = "Lifting Simulator Script",
-        URL = "loadstring(game:HttpGet("https://raw.githubusercontent.com/CDOTSCRIPTING/roblox-hub/refs/heads/main/Lifting%20Simulator%20REBORN?token=GHSAT0AAAAAAEOIV7WHE73O73ZE5CNUKGPC2XDNJAQ"))()"
+        URL = "https://raw.githubusercontent.com/CDOTSCRIPTING/roblox-hub/refs/heads/main/Lifting%20Simulator%20REBORN?token=GHSAT0AAAAAAEOIV7WHE73O73ZE5CNUKGPC2XDNJAQ"
     },
     {
         Name = "COMING SOON",
@@ -768,7 +768,6 @@ local customScripts = {
         URL = ""
     }
 }
-
 local scriptScroll = Instance.new("ScrollingFrame")
 scriptScroll.Size = UDim2.new(1, 0, 1, -10)
 scriptScroll.Position = UDim2.new(0, 0, 0, 0)
